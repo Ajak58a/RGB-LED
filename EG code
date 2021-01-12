@@ -1,0 +1,32 @@
+#include <IRremote.h>				// library for IRRemote functions
+
+int IRpin = 3;  					// pin for the IR sensor
+int intr_pin = 2;					// interrupt pin
+IRrecv irrecv(IRpin);				// configure IR pin
+decode_results results;				// decoded codes as result
+unsigned long int prev_code;			// save previous code
+void setup() 
+{
+ Serial.begin(9600);				// initialize serial port
+//////////// print message on serial monitor //////////////////
+ Serial.println("IR remote code decoder using interrupts");
+ irrecv.enableIRIn(); 				// Start IR receiver 
+//////////////// attach interrupt to pin 2 with ISR //////////// 
+attachInterrupt(digitalPinToInterrupt(intr_pin), receive_code, CHANGE);
+}
+void loop()
+  {    
+   delay(200);     			// wait for 
+   irrecv.resume(); 			// new received code
+  }
+void receive_code()
+  {
+       if(irrecv.decode(&results)) 	// when code is received
+         {   
+           if(prev_code != results.value)	// if its new code
+           { 
+            Serial.println(results.value); // display it on serial monitor
+            prev_code = results.value; 	// and save it
+           }               
+         }        
+   }        
